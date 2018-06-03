@@ -56,38 +56,38 @@ public class OrderStateActionButton extends View {
         canvas.save();
         int paddings = extra % maxPaddings;
         scaleBitmap(paddings);
-
         float ratio = getScaleSize(paddings);
+
         float[] translateXY = getTranslateValue(paddings);
-        canvas.translate(-translateXY[0], -translateXY[1]);
+        canvas.translate(translateXY[0], translateXY[1]);
 
         paint.setAlpha((int) ratio);
-
         canvas.drawBitmap(bgBm, matrix, paint);
         canvas.restore();
 
-//        if (extra >= maxPaddings / 2) {
-////            canvas.save();
-//            int paddings2 = paddings > maxPaddings / 2 ? (paddings - maxPaddings / 2 ) : (paddings + maxPaddings / 2);
-//            scaleBitmap(paddings2);
-//            ratio = getScaleSize(paddings2);
-////            float[] translateValue = getTranslateValue(paddings);
-////            canvas.translate(-translateValue[0], -translateValue[1]);
-//            paint.setAlpha((int) ratio);
-//            canvas.drawBitmap(bgBm, matrix, paint);
-////            canvas.restore();
-//        }
+        if (extra >= maxPaddings / 2) {
+            canvas.save();
+            int paddings2 = paddings > maxPaddings / 2 ? (paddings - maxPaddings / 2 ) : (paddings + maxPaddings / 2);
+            scaleBitmap(paddings2);
+            ratio = getScaleSize(paddings2);
+
+            float[] translateValue = getTranslateValue(paddings2);
+            canvas.translate(translateValue[0], translateValue[1]);
+
+            paint.setAlpha((int) ratio);
+            canvas.drawBitmap(bgBm, matrix, paint);
+            canvas.restore();
+        }
 
 
-//        paint.setAlpha(255);
-//        paint.setColor(Color.RED);
-//        canvas.drawCircle(getWidth() /2 , getHeight() / 2, radius, paint);
-
+        paint.setAlpha(255);
         paint.setColor(Color.RED);
+        canvas.drawCircle(getWidth() /2 , getHeight() / 2, radius, paint);
+
+        paint.setColor(Color.WHITE);
         Rect rectWord = new Rect();
         paint.getTextBounds(word, 0, word.length(), rectWord);
         int x = getWidth() / 2 - rectWord.width() / 2;
-        int y = getHeight() / 2 + rectWord.height() / 2;
         Paint.FontMetricsInt fontMetrics = paint.getFontMetricsInt();
         int baseLineY = (getMeasuredHeight() - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
         canvas.drawText(word, 0, word.length(), x, baseLineY, paint);
@@ -119,7 +119,7 @@ public class OrderStateActionButton extends View {
     }
 
     private float[] getTranslateValue(float paddings){
-        float dX =  getWidth() / 2 - (paddings + radius) ;
+        float dX =  getWidth() / 2 - paddings - radius;
         return new float[]{dX, dX};
     }
 
