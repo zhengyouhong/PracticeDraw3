@@ -22,9 +22,7 @@ public class OrderStateActionButton extends View {
     private int extra;
     private int radius;
     private int maxPaddings;
-    private Bitmap topBm;
-    private Bitmap mBitmap1;
-    private Bitmap mBitmap2;
+    private Matrix matrix;
 
     public OrderStateActionButton(Context context) {
         this(context, null);
@@ -42,12 +40,12 @@ public class OrderStateActionButton extends View {
     private void init() {
 
         bgBm = BitmapFactory.decodeResource(getContext().getResources(), R.mipmap.ic_launcher_round);
-        topBm = BitmapFactory.decodeResource(getContext().getResources(), R.mipmap.ic_launcher);
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setTextSize(dp2px(60));
 
+        matrix = new Matrix();
 
     }
 
@@ -55,37 +53,41 @@ public class OrderStateActionButton extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        canvas.save();
         int paddings = extra % maxPaddings;
-        mBitmap1 = scaleBitmap(paddings);
-
-        int x = getWidth() / 2 - mBitmap1.getWidth() / 2;
-        int y = getHeight() / 2 - mBitmap1.getHeight() / 2;
+        scaleBitmap(paddings);
 
         float ratio = getScaleSize(paddings);
+        float[] translateXY = getTranslateValue(paddings);
+        canvas.translate(-translateXY[0], -translateXY[1]);
 
         paint.setAlpha((int) ratio);
-        canvas.drawBitmap(mBitmap1, x, y, paint);
 
-        if (extra >= maxPaddings / 2) {
-            int paddings2 = paddings > maxPaddings / 2 ? (paddings - maxPaddings / 2 ) : (paddings + maxPaddings / 2);
-            mBitmap2 = scaleBitmap(paddings2);
-            ratio = getScaleSize(paddings2);
-            paint.setAlpha((int) ratio);
-            x = getWidth() / 2 - mBitmap2.getWidth() / 2;
-            y = getHeight() / 2 - mBitmap2.getHeight() / 2;
-            canvas.drawBitmap(mBitmap2, x, y, paint);
-        }
+        canvas.drawBitmap(bgBm, matrix, paint);
+        canvas.restore();
+
+//        if (extra >= maxPaddings / 2) {
+////            canvas.save();
+//            int paddings2 = paddings > maxPaddings / 2 ? (paddings - maxPaddings / 2 ) : (paddings + maxPaddings / 2);
+//            scaleBitmap(paddings2);
+//            ratio = getScaleSize(paddings2);
+////            float[] translateValue = getTranslateValue(paddings);
+////            canvas.translate(-translateValue[0], -translateValue[1]);
+//            paint.setAlpha((int) ratio);
+//            canvas.drawBitmap(bgBm, matrix, paint);
+////            canvas.restore();
+//        }
 
 
-        paint.setAlpha(255);
+//        paint.setAlpha(255);
+//        paint.setColor(Color.RED);
+//        canvas.drawCircle(getWidth() /2 , getHeight() / 2, radius, paint);
+
         paint.setColor(Color.RED);
-        canvas.drawCircle(getWidth() /2 , getHeight() / 2, radius, paint);
-
-        paint.setColor(Color.WHITE);
         Rect rectWord = new Rect();
         paint.getTextBounds(word, 0, word.length(), rectWord);
-        x = getWidth() / 2 - rectWord.width() / 2;
-        y = getHeight() / 2 + rectWord.height() / 2;
+        int x = getWidth() / 2 - rectWord.width() / 2;
+        int y = getHeight() / 2 + rectWord.height() / 2;
         Paint.FontMetricsInt fontMetrics = paint.getFontMetricsInt();
         int baseLineY = (getMeasuredHeight() - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
         canvas.drawText(word, 0, word.length(), x, baseLineY, paint);
@@ -100,12 +102,12 @@ public class OrderStateActionButton extends View {
         return (1 - paddings * 1.0f / (getWidth() / 2 - radius)) * 255;
     }
 
-    private Bitmap scaleBitmap(int paddings) {
+    private void scaleBitmap(int paddings) {
+        matrix.reset();
         int newWidth = radius + paddings;
         int newHeight = radius + paddings;
-        Matrix matrix = new Matrix();
+
         matrix.postScale(newWidth * 1.0f / (bgBm.getWidth() * 0.5f), newHeight * 1.0f / (bgBm.getHeight() * 0.5f));
-        return Bitmap.createBitmap(bgBm, 0, 0, bgBm.getWidth(), bgBm.getHeight(), matrix, true);
     }
 
     @Override
@@ -115,6 +117,12 @@ public class OrderStateActionButton extends View {
         radius = (int) (getWidth() * 0.5f * 0.5f);
         maxPaddings = (int) (getWidth() * 0.5f - radius);
     }
+
+    private float[] getTranslateValue(float paddings){
+        float dX =  getWidth() / 2 - (paddings + radius) ;
+        return new float[]{dX, dX};
+    }
+
 
     private int dp2px(float dpValue) {
         return (int) (getResources().getDisplayMetrics().density * dpValue + 0.5f);
